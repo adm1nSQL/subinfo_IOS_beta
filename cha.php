@@ -18,7 +18,7 @@ $header = substr($result, 0, $header_size);
 preg_match_all('/upload=([0-9]+); download=([0-9]+); total=([0-9]+); expire=([0-9]+)/', $header, $matches);
 
 // 显示相应内容
-echo '订阅链接： ' . $url . '<br />';
+echo '订阅链接： ' . $url. '<br />';
 echo '已上传流量 ：' . formatSizeUnits($matches[1][0]) . '<br />';
 echo '已下载流量 ：' . formatSizeUnits($matches[2][0]) . '<br />';
 echo '剩余流量 ：' . formatSizeUnits($matches[3][0] - $matches[2][0]) .' <br />';
