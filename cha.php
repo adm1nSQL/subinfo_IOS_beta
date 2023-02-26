@@ -1,4 +1,5 @@
 <?php
+header('Content-Type: text/html; charset=utf-8');
 $url = $_GET['sub'];
 $headers = array(
     'User-Agent: ClashforWindows/0.18.1'
@@ -18,13 +19,18 @@ $header = substr($result, 0, $header_size);
 preg_match_all('/upload=([0-9]+); download=([0-9]+); total=([0-9]+); expire=([0-9]+)/', $header, $matches);
 
 // 显示相应内容
-echo '订阅链接： ' . $url. '<br />';
-echo '已上传流量 ：' . formatSizeUnits($matches[1][0]) . '<br />';
-echo '已下载流量 ：' . formatSizeUnits($matches[2][0]) . '<br />';
-echo '剩余流量 ：' . formatSizeUnits($matches[3][0] - $matches[2][0]) .' <br />';
-echo '总流量 ：' . formatSizeUnits($matches[3][0]) . '<br />';
-echo '到期时间 ：' . date('Y/m/d H:i:s', $matches[4][0]) . '<br />';
-echo '<a href=https://t.me/fffffx2>@fffffx2专用';
+echo 'sub_link:   ' . $url. '<br />';
+echo 'upload:   ' . formatSizeUnits($matches[1][0]) . '<br />';
+echo 'downoad:   ' . formatSizeUnits($matches[2][0]) . '<br />';
+echo 'balance:   ' . formatSizeUnits($matches[3][0] - $matches[2][0]) .' <br />';
+echo 'total:   ' . formatSizeUnits($matches[3][0]) . '<br />';
+if (empty($matches[4][0])) {
+    $expire = 'None';
+} else {
+    $expire = date('Y/m/d H:i:s', $matches[4][0]);
+}
+echo 'expire: ' . $expire . '<br />';
+echo '<a href=https://t.me/fffffx2>@fffffx2';
 
 curl_close($ch);
 
