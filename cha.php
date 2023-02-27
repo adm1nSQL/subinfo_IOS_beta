@@ -30,7 +30,7 @@ if (empty($matches[4][0])) {
     $expire = date('Y/m/d H:i:s', $matches[4][0]);
 }
 echo 'expire: ' . $expire . '<br />';
-echo '<a href=https://t.me/fffffx2>@fffffx2';
+echo 'TG_Channel: <a href=https://t.me/fffffx2>@fffffx2 ';
 
 curl_close($ch);
 
