@@ -19,7 +19,7 @@ $header = substr($result, 0, $header_size);
 preg_match_all('/upload=([0-9]+); download=([0-9]+); total=([0-9]+); expire=([0-9]+)/', $header, $matches);
 
 // 显示相应内容
-echo 'sub_link:   ' . $url. '<br />';
+echo 'sub_link:   ' . "<a href={$url}>{$url}</a>" . '<br />';
 echo 'upload:   ' . formatSizeUnits($matches[1][0]) . '<br />';
 echo 'downoad:   ' . formatSizeUnits($matches[2][0]) . '<br />';
 echo 'balance:   ' . formatSizeUnits($matches[3][0] - $matches[2][0]) .' <br />';
