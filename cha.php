@@ -1,6 +1,6 @@
 <?php
 header('Content-Type: text/html; charset=utf-8');
-$url = $_GET['sub'];
+$url = rawurldecode($_GET['sub']);
 $headers = array(
     'User-Agent: ClashforWindows/0.18.1'
 );
@@ -14,23 +14,40 @@ curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 $result = curl_exec($ch);
 $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
 $header = substr($result, 0, $header_size);
+$body = substr($result, $header_size);
 
-// 截取 upload, download, total, expire 的值
-preg_match_all('/upload=([0-9]+); download=([0-9]+); total=([0-9]+); expire=([0-9]+)/', $header, $matches);
-
-// 显示相应内容
-echo 'sub_link:   ' . "<a href={$url}>{$url}</a>" . '<br />';
-echo 'upload:   ' . formatSizeUnits($matches[1][0]) . '<br />';
-echo 'downoad:   ' . formatSizeUnits($matches[2][0]) . '<br />';
-echo 'balance:   ' . formatSizeUnits($matches[3][0] - $matches[2][0]) .' <br />';
-echo 'total:   ' . formatSizeUnits($matches[3][0]) . '<br />';
-if (empty($matches[4][0])) {
-    $expire = 'None';
-} else {
-    $expire = date('Y/m/d H:i:s', $matches[4][0]);
+// 从响应头中提取subscription_userinfo字段的值
+$sub_info = '';
+foreach (explode("\r\n", $header) as $header_item) {
+    if (stripos($header_item, 'subscription-userinfo:') === 0) {
+        $sub_info = trim(substr($header_item, strlen('subscription-userinfo:')));
+        break;
+    }
 }
-echo 'expire: ' . $expire . '<br />';
-echo 'TG_Channel: <a href=https://t.me/fffffx2>@fffffx2 ';
+
+if (!empty($sub_info)) {
+    $data = [];
+    parse_str(str_replace([';', ' ', 'expire=', 'upload=', 'download=', 'total='], ['&', '', '&e=', '&u=', '&d=', '&t='], $sub_info), $data);
+
+    if (isset($data['u']) && isset($data['d']) && isset($data['t'])) {
+        $upload = $data['u'];
+        $download = $data['d'];
+        $total = $data['t'];
+
+        // 显示相应内容
+        echo 'Sub_Link:     ' . "<a href={$url}>{$url}</a>" . '<br />';
+        echo 'Upload:     ' . formatSizeUnits($upload) . '<br />';
+        echo 'Download:      ' . formatSizeUnits($download) . '<br />';
+        echo 'Remaining:      ' . formatSizeUnits($total - $download) .' <br />';
+        echo 'Total:     ' . formatSizeUnits($total) . '<br />';
+        echo "Expire:      " . ($data['e'] ? date("Y-m-d H:i:s", intval($data['e'])) : 'None') . "<br />";
+        //echo 'TG_Channel: <a href=https://t.me/fffffx2>@fffffx2 ';
+    } else {
+        echo "Failed to get traffic information.";
+    }
+} else {
+    echo "Failed to get subscription_userinfo from headers.";
+}
 
 curl_close($ch);
 
