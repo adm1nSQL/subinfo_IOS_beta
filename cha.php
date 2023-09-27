@@ -16,6 +16,12 @@ $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
 $header = substr($result, 0, $header_size);
 $body = substr($result, $header_size);
 
+// Extract airport name from Content-Disposition header
+$airport_name = '';
+if (preg_match('/filename\*=UTF-8\'\'(.+)/', $header, $matches)) {
+    $airport_name = urldecode($matches[1]);
+}
+
 // 从响应头中提取subscription_userinfo字段的值
 $sub_info = '';
 foreach (explode("\r\n", $header) as $header_item) {
@@ -34,14 +40,24 @@ if (!empty($sub_info)) {
         $download = $data['d'];
         $total = $data['t'];
 
-        // 显示相应内容
-        echo 'Sub_Link:     ' . "<a href={$url}>{$url}</a>" . '<br />';
-        echo 'Upload:     ' . formatSizeUnits($upload) . '<br />';
-        echo 'Download:      ' . formatSizeUnits($download) . '<br />';
-        echo 'Remaining:      ' . formatSizeUnits($total - $download) .' <br />';
-        echo 'Total:     ' . formatSizeUnits($total) . '<br />';
-        echo "Expire:      " . ($data['e'] ? date("Y-m-d H:i:s", intval($data['e'])) : 'None') . "<br />";
+        // Output in HTML format
+        echo '<html>';
+        echo '<head><meta charset="UTF-8"><title>Subscription Info</title></head>';
+        echo '<body>';
+        echo '订阅链接:     <a href="' . $url . '">' . $url . '</a><br />';
+        // Include the airport name in the output
+        if (!empty($airport_name)) {
+            echo '机场名: ' . $airport_name . '<br />';
+        }
+        echo '已上传:     ' . formatSizeUnits($upload) . '<br />';
+        echo '已下载:      ' . formatSizeUnits($download) . '<br />';
+        echo '总流量:     ' . formatSizeUnits($total) . '<br />';
+        echo '剩余流量:      ' . formatSizeUnits($total - $download) .' <br />';
+        echo '到期时间:      ' . ($data['e'] ? date("Y-m-d H:i:s", intval($data['e'])) : '未知') . '<br />';
+
         //echo 'TG_Channel: <a href=https://t.me/fffffx2>@fffffx2 ';
+        echo '</body>';
+        echo '</html>';
     } else {
         echo "Failed to get traffic information.";
     }
