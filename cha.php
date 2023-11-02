@@ -59,10 +59,10 @@ if (!empty($sub_info)) {
         echo '</body>';
         echo '</html>';
     } else {
-        echo "Failed to get traffic information.";
+        echo "查询流量信息失败";
     }
 } else {
-    echo "Failed to get subscription_userinfo from headers.";
+    echo "未能从headers中获取流量信息字段";
 }
 
 curl_close($ch);
